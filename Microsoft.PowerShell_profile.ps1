@@ -286,12 +286,6 @@ function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
 
-#zoxide
-function z { cd "$args" }
-
-function zi { cdi }
-
-
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
     Command = 'Yellow'
@@ -419,3 +413,7 @@ Use 'Show-Help' to display this help message.
 "@
 }
 Write-Host "Use 'Show-Help' to display help"
+
+##zoxide alias 
+Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
+Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
