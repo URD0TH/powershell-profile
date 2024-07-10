@@ -1,4 +1,4 @@
-# 🎨 PowerShell Profile (Pretty PowerShell)
+# 🎨 PowerShell Profile fork (Pretty PowerShell) BY @ChrisTitusTech/powershell-profile
 
 A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
 
