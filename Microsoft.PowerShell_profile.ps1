@@ -287,9 +287,9 @@ function cpy { Set-Clipboard $args[0] }
 function pst { Get-Clipboard }
 
 #zoxide
-function z { __zoxide_z }
+function z { cd }
 
-function zi { __zoxide_zi }
+function zi { cdi }
 
 
 # Enhanced PowerShell Experience
