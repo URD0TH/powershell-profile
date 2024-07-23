@@ -347,9 +347,29 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
-
+# zoxide legacy
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
+
+############ conda init############
+
+#region conda initialize
+# !! Contents within this block are managed by 'conda init' !!
+If (Test-Path "C:\Users\URD0TH\miniconda3\Scripts\conda.exe") {
+    (& "C:\Users\URD0TH\miniconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
+}
+# Desactivar la activación automática del entorno base
+conda config --set auto_activate_base false
+#endregion
+
+# Función para activar el entorno base manualmente
+function base {
+    conda activate base
+}
+
+function activate {
+    conda activate venv
+}
 
 # Help Function
 function Show-Help {
