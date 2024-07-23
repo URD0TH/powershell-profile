@@ -7,7 +7,7 @@
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/ChrisTitusTech/powershell-profile.git.                         ############
+############                       https://github.com/URD0TH/powershell-profile.git.                         ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -15,6 +15,11 @@
 ############                              AND SAVE YOUR CHANGES IN THE FILE CREATED.                                 ############
 ############                                                                                                         ############
 #################################################################################################################################
+
+#opt-out of telemetry before doing anything, only if PowerShell is run as admin
+if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) {
+    [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
+}
 
 # Initial GitHub.com connectivity check with 1 second timeout
 $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
@@ -38,7 +43,7 @@ function Update-Profile {
     }
 
     try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $url = "https://raw.githubusercontent.com/URD0TH/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
@@ -293,6 +298,28 @@ Set-PSReadLineOption -Colors @{
     String = 'DarkCyan'
 }
 
+$PSROptions = @{
+    ContinuationPrompt = '  '
+    Colors             = @{
+    Parameter          = $PSStyle.Foreground.Magenta
+    Selection          = $PSStyle.Background.Black
+    InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
+    }
+}
+Set-PSReadLineOption @PSROptions
+Set-PSReadLineKeyHandler -Chord 'Ctrl+f' -Function ForwardWord
+Set-PSReadLineKeyHandler -Chord 'Enter' -Function ValidateAndAcceptLine
+
+$scriptblock = {
+    param($wordToComplete, $commandAst, $cursorPosition)
+    dotnet complete --position $cursorPosition $commandAst.ToString() |
+        ForEach-Object {
+            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+        }
+}
+Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
+
+
 # Get theme from profile.ps1 or use a default theme
 function Get-Theme {
     if (Test-Path -Path $PROFILE.CurrentUserAllHosts -PathType leaf) {
@@ -321,7 +348,6 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     }
 }
 
-##zoxide alias 
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
@@ -413,7 +439,3 @@ Use 'Show-Help' to display this help message.
 "@
 }
 Write-Host "Use 'Show-Help' to display help"
-
-##zoxide alias 
-Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
-Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
