@@ -358,8 +358,8 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 If (Test-Path "C:\Users\URD0TH\miniconda3\Scripts\conda.exe") {
     (& "C:\Users\URD0TH\miniconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
 }
-# Desactivar la activación automática del entorno base
-conda config --set auto_activate_base false
+# Disable automatic base environment activation
+conda config --set auto_activate_base false | Out-Null
 #endregion
 
 # Función para activar el entorno base manualmente
