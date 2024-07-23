@@ -355,9 +355,9 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 #region conda initialize
 # !! Contents within this block are managed by 'conda init' !!
-If (Test-Path "C:\Users\URD0TH\miniconda3\Scripts\conda.exe") {
-    (& "C:\Users\URD0TH\miniconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
-}
+# If (Test-Path "C:\Users\URD0TH\miniconda3\Scripts\conda.exe") {
+#     (& "C:\Users\URD0TH\miniconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
+# }
 # Disable automatic base environment activation
 conda config --set auto_activate_base false | Out-Null
 #endregion
