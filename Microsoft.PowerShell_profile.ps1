@@ -263,7 +263,7 @@ function gc { param($m) git commit -m "$m" }
 
 function gp { git push }
 
-function g { __zoxide_z github }
+function g { z github }
 
 function gcl { git clone "$args" }
 
@@ -353,12 +353,12 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 ############ conda init############
 
-#region conda initialize
-# !! Contents within this block are managed by 'conda init' !!
-# If (Test-Path "C:\Users\URD0TH\miniconda3\Scripts\conda.exe") {
-#     (& "C:\Users\URD0TH\miniconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
-# }
-# Disable automatic base environment activation
+function conda-init {
+    if (Test-Path "C:\Users\URD0TH\miniconda3\Scripts\conda.exe") {
+        (& "C:\Users\URD0TH\miniconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
+    }
+    # Disable automatic base environment activation
+                    }
 conda config --set auto_activate_base false | Out-Null
 #endregion
 
