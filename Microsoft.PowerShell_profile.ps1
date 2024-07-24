@@ -371,6 +371,11 @@ function activate {
     conda activate venv
 }
 
+
+function py {
+    python "$args"
+}
+
 # Help Function
 function Show-Help {
     @"
