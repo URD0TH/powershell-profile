@@ -371,10 +371,10 @@ function activate {
     conda activate venv
 }
 
-#funcion alias python
-function py {
-    python "$($args)"
-}
+# #funcion alias python
+# function py {
+#     python "$($args)"
+# }
 
 # Help Function
 function Show-Help {
