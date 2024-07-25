@@ -351,32 +351,7 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
-############ conda init############
-
-function conda-init {
-    if (Test-Path "C:\Users\URD0TH\miniconda3\Scripts\conda.exe") {
-        (& "C:\Users\URD0TH\miniconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | ?{$_} | Invoke-Expression
-    }
-    # Disable automatic base environment activation
-                    }
-conda config --set auto_activate_base false | Out-Null
-#endregion
-
-# Función para activar el entorno base manualmente
-function base {
-    conda activate base
-}
-
-function activate {
-    conda activate venv
-}
-
-# #funcion alias python
-# function py {
-#     python "$($args)"
-# }
-
-# Help Function
+# # Help Function
 function Show-Help {
     @"
 PowerShell Profile Help
