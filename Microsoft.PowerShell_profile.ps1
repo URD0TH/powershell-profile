@@ -63,10 +63,12 @@ function Update-PowerShell {
     try {
         Write-Host "Verificando actualizaciones de PowerShell..." -ForegroundColor Cyan
         $result = winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
-        if ($result -match "No se encontraron actualizaciones.") {
+        if ($result -match "No se ha encontrado ninguna actualización disponible.") {
             Write-Host "Tu PowerShell está actualizado." -ForegroundColor Green
-        } else {
+        } elseif ($result -match "Se ha actualizado correctamente") {
             Write-Host "PowerShell ha sido actualizado. Por favor, reinicia tu shell para aplicar los cambios" -ForegroundColor Magenta
+        } else {
+            Write-Host "No se pudo determinar el estado de la actualización. Resultado: $result" -ForegroundColor Yellow
         }
     } catch {
         Write-Error "Error al actualizar PowerShell. Error: $_"
