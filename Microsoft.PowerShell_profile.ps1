@@ -60,31 +60,16 @@ function Update-Profile {
 Update-Profile
 
 function Update-PowerShell {
-    if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
-        return
-    }
-
     try {
-        Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
-        $updateNeeded = $false
-        $currentVersion = $PSVersionTable.PSVersion.ToString()
-        $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
-        $latestReleaseInfo = Invoke-RestMethod -Uri $gitHubApiUrl
-        $latestVersion = $latestReleaseInfo.tag_name.Trim('v')
-        if ($currentVersion -lt $latestVersion) {
-            $updateNeeded = $true
-        }
-
-        if ($updateNeeded) {
-            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
-            winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
-            Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+        Write-Host "Verificando actualizaciones de PowerShell..." -ForegroundColor Cyan
+        $result = winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
+        if ($result -match "No se encontraron actualizaciones.") {
+            Write-Host "Tu PowerShell está actualizado." -ForegroundColor Green
         } else {
-            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
+            Write-Host "PowerShell ha sido actualizado. Por favor, reinicia tu shell para aplicar los cambios" -ForegroundColor Magenta
         }
     } catch {
-        Write-Error "Failed to update PowerShell. Error: $_"
+        Write-Error "Error al actualizar PowerShell. Error: $_"
     }
 }
 Update-PowerShell
