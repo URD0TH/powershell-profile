@@ -63,18 +63,37 @@ function Update-PowerShell {
     try {
         Write-Host "Verificando actualizaciones de PowerShell..." -ForegroundColor Cyan
         $result = winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
-        if ($result -match "No se ha encontrado ninguna actualización disponible.") {
+        $resultString = $result -join " " | Out-String
+        $resultString = $resultString -replace '\s+', ' ' # Reemplaza multiples espacios y saltos de linea por un solo espacio
+        $resultString = $resultString -replace '[áéíóúÁÉÍÓÚ]', { 
+            switch ($_.Value) {
+                'á' { 'a' }
+                'é' { 'e' }
+                'í' { 'i' }
+                'ó' { 'o' }
+                'ú' { 'u' }
+                'Á' { 'A' }
+                'É' { 'E' }
+                'Í' { 'I' }
+                'Ó' { 'O' }
+                'Ú' { 'U' }
+            }
+        }
+
+        if ($resultString -like "*No se ha encontrado ninguna actualizacion disponible*" -or 
+            $resultString -like "*No hay versiones mas recientes del paquete disponibles*") {
             Write-Host "Tu PowerShell está actualizado." -ForegroundColor Green
-        } elseif ($result -match "Se ha actualizado correctamente") {
+        } elseif ($resultString -like "*Se ha actualizado correctamente*") {
             Write-Host "PowerShell ha sido actualizado. Por favor, reinicia tu shell para aplicar los cambios" -ForegroundColor Magenta
         } else {
-            Write-Host "No se pudo determinar el estado de la actualización. Resultado: $result" -ForegroundColor Yellow
+            Write-Host "No se pudo determinar el estado de la actualización. Resultado: $resultString" -ForegroundColor Yellow
         }
     } catch {
         Write-Error "Error al actualizar PowerShell. Error: $_"
     }
 }
 Update-PowerShell
+
 
 
 # Admin Check and Prompt Customization
