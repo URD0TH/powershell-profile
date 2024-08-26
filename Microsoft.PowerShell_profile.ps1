@@ -64,22 +64,16 @@ function Update-PowerShell {
         Write-Host "Verificando actualizaciones de PowerShell..." -ForegroundColor Cyan
         $result = winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
         $resultString = $result -join " " | Out-String
-        $resultString = $resultString -replace '\s+', ' ' # Reemplaza multiples espacios y saltos de linea por un solo espacio
-        $resultString = $resultString -replace '[áéíóúÁÉÍÓÚ]', { 
-            switch ($_.Value) {
-                'á' { 'a' }
-                'é' { 'e' }
-                'í' { 'i' }
-                'ó' { 'o' }
-                'ú' { 'u' }
-                'Á' { 'A' }
-                'É' { 'E' }
-                'Í' { 'I' }
-                'Ó' { 'O' }
-                'Ú' { 'U' }
-            }
-        }
-
+        
+        # Reemplaza caracteres no deseados
+        $resultString = $resultString -replace '[├│]', 'o' # Reemplaza caracteres no deseados con 'o'
+        $resultString = $resultString -replace '[─]', 'a' # Reemplaza caracteres no deseados con 'a'
+        $resultString = $resultString -replace 'moís', 'mas' # Reemplaza 'moís' con 'mas'
+        $resultString = $resultString -replace '[-\\|/]', '' # Elimina caracteres no deseados
+        $resultString = $resultString -replace '\s+', ' ' # Reemplaza múltiples espacios y saltos de línea por un solo espacio
+        $resultString = $resultString -replace 'oo', 'o' # Reemplaza 'oo' con 'o'
+        
+        # Verifica el estado de la actualización
         if ($resultString -like "*No se ha encontrado ninguna actualizacion disponible*" -or 
             $resultString -like "*No hay versiones mas recientes del paquete disponibles*") {
             Write-Host "Tu PowerShell está actualizado." -ForegroundColor Green
