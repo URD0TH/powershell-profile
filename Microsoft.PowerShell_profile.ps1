@@ -60,6 +60,18 @@ function Update-Profile {
 Update-Profile
 
 function Update-PowerShell {
+    # Verificar si ya se ejecutó hoy
+    $lastRunFile = Join-Path $env:TEMP "LastPowerShellUpdate.txt"
+    $today = Get-Date -Format "yyyy-MM-dd"
+    
+    if (Test-Path $lastRunFile) {
+        $lastRun = Get-Content $lastRunFile
+        if ($lastRun -eq $today) {
+            Write-Host "La actualización de PowerShell ya se ejecutó hoy." -ForegroundColor Yellow
+            return
+        }
+    }
+
     try {
         Write-Host "Verificando actualizaciones de PowerShell..." -ForegroundColor Cyan
         $result = winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
@@ -82,6 +94,10 @@ function Update-PowerShell {
         } else {
             Write-Host "No se pudo determinar el estado de la actualización. Resultado: $resultString" -ForegroundColor Yellow
         }
+
+        # Guardar la fecha de ejecución
+        $today | Out-File $lastRunFile -Force
+
     } catch {
         Write-Error "Error al actualizar PowerShell. Error: $_"
     }
