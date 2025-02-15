@@ -79,6 +79,12 @@ function Update-Profile {
 }
 
 
+# Asegurarse de que el directorio existe antes de escribir el archivo
+$timeFileDirectory = Split-Path $timeFilePath -Parent
+if (-not (Test-Path $timeFileDirectory)) {
+    New-Item -ItemType Directory -Path $timeFileDirectory -Force
+}
+
 # Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
 if (-not $debug -and `
     ($updateInterval -eq -1 -or `
@@ -87,7 +93,7 @@ if (-not $debug -and `
 
     Update-Profile
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
-    $currentTime | Out-File -FilePath $timeFilePath
+    $currentTime | Out-File -FilePath $timeFilePath -Force
 
 } elseif (-not $debug) {
     Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
