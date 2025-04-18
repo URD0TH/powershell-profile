@@ -4,7 +4,9 @@
 $debug = $false
 
 # Define the path to the file that stores the last execution time
+
 $timeFilePath = [Environment]::GetFolderPath("MyDocuments") + "\PowerShell\LastExecutionTime.txt"
+
 
 # Define the update interval in days, set to -1 to always check
 $updateInterval = 7
@@ -29,7 +31,7 @@ if ($debug) {
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/ChrisTitusTech/powershell-profile.git.                         ############
+############                       https://github.com/URD0TH/powershell-profile.git.                                 ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -46,6 +48,7 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
 # Initial GitHub.com connectivity check with 1 second timeout
 $global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
 
+
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
 if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
@@ -60,7 +63,7 @@ if (Test-Path($ChocolateyProfile)) {
 # Check for Profile Updates
 function Update-Profile {
     try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $url = "https://raw.githubusercontent.com/URD0TH/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
@@ -76,6 +79,7 @@ function Update-Profile {
         Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
     }
 }
+
 
 # Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
 if (-not $debug -and `
@@ -125,7 +129,9 @@ if (-not $debug -and `
     Update-PowerShell
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
     $currentTime | Out-File -FilePath $timeFilePath
+
 } elseif ($debug) {
+
     Write-Warning "Skipping PowerShell update in debug mode"
 }
 
@@ -219,14 +225,16 @@ Set-Alias -Name su -Value admin
 
 function uptime {
     try {
+
         # find date/time format
         $dateFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.ShortDatePattern
         $timeFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.LongTimePattern
-		
+
         # check powershell version
         if ($PSVersionTable.PSVersion.Major -eq 5) {
             $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
             $bootTime = [System.Management.ManagementDateTimeConverter]::ToDateTime($lastBoot)
+
 
             # reformat lastBoot
             $lastBoot = $bootTime.ToString("$dateFormat $timeFormat")
@@ -237,6 +245,7 @@ function uptime {
 
         # Format the start time
         $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture) + " [$lastBoot]"
+
         Write-Host "System started on: $formattedBootTime" -ForegroundColor DarkGray
 
         # calculate uptime
@@ -250,6 +259,7 @@ function uptime {
 
         # Uptime output
         Write-Host ("Uptime: {0} days, {1} hours, {2} minutes, {3} seconds" -f $days, $hours, $minutes, $seconds) -ForegroundColor Blue
+
 
     } catch {
         Write-Error "An error occurred while retrieving system uptime."
@@ -342,6 +352,7 @@ function mkcd { param($dir) mkdir $dir -Force; Set-Location $dir }
 function trash($path) {
     $fullPath = (Resolve-Path -Path $path).Path
 
+
     if (Test-Path $fullPath) {
         $item = Get-Item $fullPath
 
@@ -375,6 +386,7 @@ function docs {
     Set-Location -Path $docs
 }
     
+
 function dtop { 
     $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Documents"}
     Set-Location -Path $dtop
@@ -621,6 +633,7 @@ $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipb
 Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
 "@
     Write-Host $helpText
+
 }
 
 if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
@@ -628,3 +641,4 @@ if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
 }
 
 Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
+
