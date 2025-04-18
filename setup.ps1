@@ -92,7 +92,7 @@ else {
         Get-Item -Path $PROFILE | Move-Item -Destination "oldprofile.ps1" -Force
         Invoke-RestMethod https://github.com/URD0TH/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
-        Write-Host "Please back up any persistent components of your old profile to [  $profilePath\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes"
+        Write-Host "Please back up any persistent components of your old profile to [$profilePath\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes"
     }
     catch {
         Write-Error "Failed to backup and update the profile. Error: $_"
