@@ -4,7 +4,9 @@
 $debug = $false
 
 # Define the path to the file that stores the last execution time
-$timeFilePath = "$env:DOCUMENTS\PowerShell\LastExecutionTime.txt"
+
+$timeFilePath = [Environment]::GetFolderPath("MyDocuments") + "\PowerShell\LastExecutionTime.txt"
+
 
 # Define the update interval in days, set to -1 to always check
 $updateInterval = 7
@@ -79,12 +81,6 @@ function Update-Profile {
 }
 
 
-# Asegurarse de que el directorio existe antes de escribir el archivo
-$timeFileDirectory = Split-Path $timeFilePath -Parent
-if (-not (Test-Path $timeFileDirectory)) {
-    New-Item -ItemType Directory -Path $timeFileDirectory -Force
-}
-
 # Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
 if (-not $debug -and `
     ($updateInterval -eq -1 -or `
@@ -93,14 +89,11 @@ if (-not $debug -and `
 
     Update-Profile
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
-    $currentTime | Out-File -FilePath $timeFilePath -Force
+    $currentTime | Out-File -FilePath $timeFilePath
 
-} elseif (-not $debug) {
-    Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
+} elseif ($debug) {
     Write-Warning "Skipping profile update check in debug mode"
 }
-
 
 function Update-PowerShell {
     try {
@@ -136,9 +129,9 @@ if (-not $debug -and `
     Update-PowerShell
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
     $currentTime | Out-File -FilePath $timeFilePath
-} elseif (-not $debug) {
-    Write-Warning "PowerShell update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
+
+} elseif ($debug) {
+
     Write-Warning "Skipping PowerShell update in debug mode"
 }
 
@@ -206,6 +199,7 @@ function ff($name) {
 
 # Network Utilities
 function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
+
 # Open WinUtil full-release
 function winutil {
 	irm https://christitus.com/win | iex
@@ -231,38 +225,27 @@ Set-Alias -Name su -Value admin
 
 function uptime {
     try {
+
+        # find date/time format
+        $dateFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.ShortDatePattern
+        $timeFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.LongTimePattern
+
         # check powershell version
         if ($PSVersionTable.PSVersion.Major -eq 5) {
             $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
             $bootTime = [System.Management.ManagementDateTimeConverter]::ToDateTime($lastBoot)
-        } else {
-            $lastBootStr = net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
-            # check date format
-            if ($lastBootStr -match '^\d{2}/\d{2}/\d{4}') {
-                $dateFormat = 'dd/MM/yyyy'
-            } elseif ($lastBootStr -match '^\d{2}-\d{2}-\d{4}') {
-                $dateFormat = 'dd-MM-yyyy'
-            } elseif ($lastBootStr -match '^\d{4}/\d{2}/\d{2}') {
-                $dateFormat = 'yyyy/MM/dd'
-            } elseif ($lastBootStr -match '^\d{4}-\d{2}-\d{2}') {
-                $dateFormat = 'yyyy-MM-dd'
-            } elseif ($lastBootStr -match '^\d{2}\.\d{2}\.\d{4}') {
-                $dateFormat = 'dd.MM.yyyy'
-            }
-            
-            # check time format
-            if ($lastBootStr -match '\bAM\b' -or $lastBootStr -match '\bPM\b') {
-                $timeFormat = 'h:mm:ss tt'
-            } else {
-                $timeFormat = 'HH:mm:ss'
-            }
 
-            $bootTime = [System.DateTime]::ParseExact($lastBootStr, "$dateFormat $timeFormat", [System.Globalization.CultureInfo]::InvariantCulture)
+
+            # reformat lastBoot
+            $lastBoot = $bootTime.ToString("$dateFormat $timeFormat")
+        } else {
+            $lastBoot = net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
+            $bootTime = [System.DateTime]::ParseExact($lastBoot, "$dateFormat $timeFormat", [System.Globalization.CultureInfo]::InvariantCulture)
         }
 
         # Format the start time
-        ### $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
-        $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture) + " [$lastBootStr]"
+        $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture) + " [$lastBoot]"
+
         Write-Host "System started on: $formattedBootTime" -ForegroundColor DarkGray
 
         # calculate uptime
@@ -276,7 +259,7 @@ function uptime {
 
         # Uptime output
         Write-Host ("Uptime: {0} days, {1} hours, {2} minutes, {3} seconds" -f $days, $hours, $minutes, $seconds) -ForegroundColor Blue
-        
+
 
     } catch {
         Write-Error "An error occurred while retrieving system uptime."
@@ -369,6 +352,7 @@ function mkcd { param($dir) mkdir $dir -Force; Set-Location $dir }
 function trash($path) {
     $fullPath = (Resolve-Path -Path $path).Path
 
+
     if (Test-Path $fullPath) {
         $item = Get-Item $fullPath
 
@@ -401,6 +385,7 @@ function docs {
     $docs = if(([Environment]::GetFolderPath("MyDocuments"))) {([Environment]::GetFolderPath("MyDocuments"))} else {$HOME + "\Documents"}
     Set-Location -Path $docs
 }
+    
 
 function dtop { 
     $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Documents"}
@@ -411,8 +396,8 @@ function dtop {
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
-function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
-function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
+function la { Get-ChildItem | Format-Table -AutoSize }
+function ll { Get-ChildItem -Force | Format-Table -AutoSize }
 
 # Git Shortcuts
 function gs { git status }
@@ -597,6 +582,8 @@ $($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Repla
 
 $($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
 
+$($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
+
 $($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <name> - Kills processes by name.
 
 $($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <name> - Lists processes by name.
@@ -645,7 +632,8 @@ $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipb
 
 Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
 "@
-Write-Host $helpText
+    Write-Host $helpText
+
 }
 
 if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
@@ -653,3 +641,4 @@ if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
 }
 
 Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
+
